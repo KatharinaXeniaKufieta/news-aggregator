@@ -67,9 +67,6 @@ APP.Main = (function() {
    * probably in a requestAnimationFrame callback.
    */
   function onStoryData (key, details) {
-
-    // This seems odd. Surely we could just select the story
-    // directly rather than looping through all of them.
     var story = document.querySelector('.story#s-' + key);
     details.time *= 1000;
     var html = storyTemplate(details);
@@ -146,85 +143,18 @@ APP.Main = (function() {
 
     storyDetails.classList.add('visible');
     storyDetails.classList.remove('hidden');
-    /*
-      storyDetails.style.opacity = 1;
-
-    // Find out where it currently is.
-    var storyDetailsPosition = storyDetails.getBoundingClientRect();
-
-    // Set the left value if we don't have one already.
-    var left = storyDetailsPosition.left;
-
-    function animate () {
-
-      // Now figure out where it needs to go.
-      left += (0 - left) * 0.1;
-
-      // Set up the next bit of the animation if there is more to do.
-      if (Math.abs(left) > 0.5)
-        window.requestAnimationFrame(animate);
-      else
-        left = 0;
-
-      // And update the styles. Wait, is this a read-write cycle?
-      // I hope I don't trigger a forced synchronous layout!
-      storyDetails.style.left = left + 'px';
-    }
-
-    window.requestAnimationFrame(animate);
-    */
   }
 
   function hideStory(id) {
     storyDetails.classList.add('hidden');
     storyDetails.classList.remove('visible');
-
-    /*
-    storyDetails.style.opacity = 0;
-
-    var left = 0;
-    // Find out where it currently is.
-    var target = 800;
-
-    function animate () {
-
-      // Now figure out where it needs to go.
-      left += (target - left) * 0.1;
-
-      // Set up the next bit of the animation if there is more to do.
-      if (Math.abs(left - target) > 0.5) {
-        window.requestAnimationFrame(animate);
-      } else {
-        left = target;
-        inDetails = false;
-      }
-
-      // And update the styles. Wait, is this a read-write cycle?
-      // I hope I don't trigger a forced synchronous layout!
-      storyDetails.style.left = left + 'px';
-    }
-
-    window.requestAnimationFrame(animate);
-    */
   }
 
-  main.addEventListener('touchstart', function(evt) {
-
-    // I just wanted to test what happens if touchstart
-    // gets canceled. Hope it doesn't block scrolling on mobiles...
-    if (Math.random() > 0.97) {
-      evt.preventDefault();
-    }
-
-  });
-
   main.addEventListener('scroll', function() {
-
     var header = $('header');
     var headerTitles = header.querySelector('.header__title-wrapper');
     var scrollTopCapped = Math.min(70, main.scrollTop);
     var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
-
 
     header.style.height = (156 - scrollTopCapped) + 'px';
     headerTitles.style.webkitTransform = scaleString;
@@ -240,7 +170,7 @@ APP.Main = (function() {
     var loadThreshold = (main.scrollHeight - main.offsetHeight -
         LAZY_LOAD_THRESHOLD);
     if (main.scrollTop > loadThreshold)
-      loadStoryBatch();
+      requestAnimationFrame(loadStoryBatch);
   });
 
   function loadStoryBatch() {
@@ -272,6 +202,7 @@ APP.Main = (function() {
     }
 
     storyStart += count;
+    requestAnimationFrame(loadStoryBatch);
 
   }
 
